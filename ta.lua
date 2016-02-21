@@ -209,14 +209,14 @@ setDefault("guiY", winHeight - 600)
 setDefault("keyCommit", string.byte("q"))
 setDefault("settings", {})
 -- Default settings:
-if data.settings.moveNames == nil then 
-  data.settings.moveNames = {
-    value = 5,
-    type = "number",
-    desc = "Your character "..HC.."/emote"..CC.."s a random kung-fu sounding move name every "..
-           HC.."moveNames"..CC.." turns. Set to zero to disable."
-  }
-end
+--if data.settings.moveNames == nil then 
+  --data.settings.moveNames = {
+    --value = 5,
+    --type = "number",
+    --desc = "Your character "..HC.."/emote"..CC.."s a random kung-fu sounding move name every "..
+           --HC.."moveNames"..CC.." turns. Set to zero to disable."
+  --}
+--end
 if data.settings.guiSize == nil then 
   data.settings.guiSize = {
     value = 60,
