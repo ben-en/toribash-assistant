@@ -4,7 +4,7 @@
 
 local commandName = "ta"
 local playerName = get_master().master.nick
-local debug_on = playerName == "dotproduct" and true
+local debug_on = playerName == "dotproduct" or "ennben" and true
 local version = "0.4"
 local colorBPBlue = {.09,.55,1,1}
 local moveButtonWidth = 124
