@@ -228,6 +228,39 @@ gui.pos = {}
 gui.pos.x, gui.pos.y = data.guiX, data.guiY
 saveData()
 
+local function resetButtonPos(seq)
+    echo(seq)
+end
+
+local function checkPos(x, y)
+    for s in data.sequences do
+        if s.X == x then if s.Y == x then return 1 end end
+    end
+    return 0
+end
+
+local function findOverlaps()
+    local overlapping = {}
+    for seq in data['sequences'] do 
+        echo(seq)
+        if checkPos(seq.X, seq.Y) then 
+            overlapping.insert(seq)
+        end
+    end
+    echo(overlapping)
+    return overlapping
+end
+
+local function cleanData()
+    local overlaps = findOverlaps()
+    for o in overlaps do 
+        echo(o) 
+    end
+end
+
+cleanData()
+echo(data)
+
 local jointButtonWidth = data.settings.guiSize.value
 local jointButtonHeight = data.settings.guiSize.value
 
