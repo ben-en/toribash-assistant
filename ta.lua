@@ -1223,7 +1223,7 @@ if ly==nil then ly = 232 end
 btnLastOppOpen = addButton(lx, ly, moveButtonWidth, 28, "Last Opp. Open", function() moveButton(-2) end)
 btnLastOppOpen.isMoveButton = true
 btnLastOppOpen.index = -2
-showMoveButtons(false)
+showMoveButtons(true)
 
 -- Register callbacks:
 add_hook("command", "bpHookCommand", hookCommand)
