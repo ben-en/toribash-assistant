@@ -774,9 +774,9 @@ local function hookEnterFreeze()
         activeSequence = nil
       end
     end
-    if data.settings.moveNames.value > 0 then
-      if match.round % data.settings.moveNames.value == 1 then run_cmd("emote "..moveName().."\n") end
-    end
+    --if data.settings.moveNames.value > 0 then
+      --if match.round % data.settings.moveNames.value == 1 then run_cmd("emote "..moveName().."\n") end
+    --end
   end
   match.round = match.round + 1
   --dbg("Starting round "..match.round)
