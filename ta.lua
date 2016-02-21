@@ -6,14 +6,13 @@ local commandName = "ta"
 local playerName = get_master().master.nick
 local debug_on = playerName == "dotproduct" and true
 local version = "0.4"
-local loadTime = os.clock()
 local colorBPBlue = {.09,.55,1,1}
 local moveButtonWidth = 124
 
 -- predefines:
 local moveSaveButtons0, moveSaveButtons1, lblSave0, lblSave1, moveButton, btnLastOpen
 local getPosition, setPosition, setKeyBindings
-local animals, verbings, adjectives, weapons, bodyparts, transverbs, wordLists, firstWords, secondWords
+local animals, verbings, adjectives, weapons, bodyparts, transverbs, firstWords, secondWords
 local CC, HC, EC
 
 local function dbg(str)
