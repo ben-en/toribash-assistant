@@ -8,8 +8,11 @@ A fork of toribash assistant from http://forum.toribash.com/showthread.php?t=492
 Text copied directly from the forum, formatting did not follow. Some notes before the paste:
 
 I found the emoting annoying, and disabled it with prejudice
+
 Buttons show by default
+
 Currently using 'b' key for show/hiding buttons
+
 
 ```
 Joint Control Features
