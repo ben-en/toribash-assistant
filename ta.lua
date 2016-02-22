@@ -227,38 +227,68 @@ gui.pos = {}
 gui.pos.x, gui.pos.y = data.guiX, data.guiY
 saveData()
 
-local function resetButtonPos(seq)
-    echo(seq)
+local function adjustButton(i, x, y)
+    assert(type(i) == "number")
+    assert(type(x) == "number")
+    assert(type(y) == "number")
+    local seq = data.sequences[i]
+    dbg('seq is type(' .. type(seq) .. ')')
+    seq.buttonX, seq.buttonY = x, y
 end
 
 local function checkPos(x, y)
-    for s in data.sequences do
-        if s.X == x then if s.Y == x then return 1 end end
+    local count = 0
+    assert(type(x) == "number")
+    assert(type(y) == "number")
+    dbg('(' .. x .. ', ' .. y .. ')')
+    for i, s in pairs(data.sequences) do
+        assert(type(s.buttonX) == "number")
+        assert(type(s.buttonY) == "number")
+        if s.buttonX == x then if s.buttonY == y then 
+            dbg(s.name .. ' matches, c = ' .. count)
+            count = count + 1 
+        end end
     end
-    return 0
+    if count > 1 then 
+        dbg('count was greater than 1; ' .. count)
+        return true 
+    else 
+        dbg('count was 1 or less; ' .. count)
+        return false 
+    end
 end
 
 local function findOverlaps()
     local overlapping = {}
-    for seq in data['sequences'] do 
-        echo(seq)
-        if checkPos(seq.X, seq.Y) then 
-            overlapping.insert(seq)
+    for index, seq in pairs(data.sequences) do
+        assert(type(seq.buttonX) == "number")
+        assert(type(seq.buttonY) == "number")
+        dbg("checking " .. seq.name)
+        if checkPos(seq.buttonX, seq.buttonY) then 
+            dbg(index .. ': ' .. seq.name .. " pos overlapping")
+            table.insert(overlapping, index, seq)
         end
     end
-    echo(overlapping)
     return overlapping
 end
 
 local function cleanData()
     local overlaps = findOverlaps()
-    for o in overlaps do 
-        echo(o) 
+    local c = 0
+    for i, v in pairs(overlaps) do
+        c = c + 1
+        local y, x
+        y = 300 + (c * 40)
+        x = 300 
+        local name = data.sequences[i].name
+        dbg('adjusting index ' .. i .. ': ' .. name .. ' to ' .. x .. ', ' .. y)
+        adjustButton(i, x, y)
     end
+    dbg(c .. " overlaps were found and moved") 
 end
 
 cleanData()
-echo(data)
+saveData()
 
 local jointButtonWidth = data.settings.guiSize.value
 local jointButtonHeight = data.settings.guiSize.value
