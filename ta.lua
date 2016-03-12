@@ -276,6 +276,8 @@ local function cleanData()
     local overlaps = findOverlaps()
     local c = 0
     for i, v in pairs(overlaps) do
+        assert(type(i) == "number")
+        assert(type(v) == "table")
         c = c + 1
         local y, x
         y = 300 + (c * 40)
