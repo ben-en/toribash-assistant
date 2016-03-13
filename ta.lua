@@ -1273,6 +1273,14 @@ function notifyEvent(event)
   add_hook(event, "bpNotify"..event, function() dbg("Event "..event.." fired.") end)
 end
 
+function tablelength(T)
+  local count = 0
+  for k,v in pairs(T) do 
+      count = count + 1 
+  end
+  return count
+end
+
 -- Recreate move buttons:
 for index, seq in pairs(data.sequences) do
   local btn = addButton(seq.buttonX, seq.buttonY, moveButtonWidth, 28, seq.name, function() moveButton(index) end)
