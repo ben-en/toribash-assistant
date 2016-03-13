@@ -1283,7 +1283,7 @@ end
 
 -- Recreate move buttons:
 for index, seq in pairs(data.sequences) do
-  local btn = addButton(seq.buttonX, seq.buttonY, moveButtonWidth, 28, seq.name, function() moveButton(index) end)
+  local btn = addButton(seq.buttonX, seq.buttonY, moveButtonWidth, 28, seq.name, function() moveButton(index) end, tablelength(seq.moves))
   btn.isMoveButton = true
   btn.index = index
 end
