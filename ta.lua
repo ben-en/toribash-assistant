@@ -391,13 +391,17 @@ local function getTimeLimit()
   if multiPlayer() then return get_world_state().turn_timelimit else return 1000000 end
 end
 
-function addButton(x, y, w, h, text, func)
+function addButton(x, y, w, h, text, func, num_moves)
   local btn = {}
   btn.x = x
   btn.y = y
   btn.w = w
   btn.h = h
-  btn.text = text
+  if num_moves then
+    btn.text = text .. " [" .. num_moves .. "]"
+  else
+    btn.text = text 
+  end
   btn.func = func
   btn.visible = true
   btn.timestamp = os.clock()
