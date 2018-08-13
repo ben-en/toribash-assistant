@@ -8,6 +8,7 @@ local debug_on = playerName == "dotproduct" or "ennben" and true
 local version = "0.4"
 local colorBPBlue = {.09,.55,1,1}
 local moveButtonWidth = 124
+local moveButtonHeight = 28
 
 -- predefines:
 local moveSaveButtons0, moveSaveButtons1, lblSave0, lblSave1, moveButton, btnLastOpen
@@ -21,6 +22,14 @@ end
 local oldEcho = echo
 local function echo(str)
   oldEcho(CC.."["..HC.."TA"..CC.."] "..tostring(str))
+end
+
+local function tablelength(T)
+  local count = 0
+  for k,v in pairs(T) do 
+      count = count + 1 
+  end
+  return count
 end
 
 local function choose(t,suffix) 
@@ -227,71 +236,6 @@ gui.pos = {}
 gui.pos.x, gui.pos.y = data.guiX, data.guiY
 saveData()
 
-local function adjustButton(i, x, y)
-    assert(type(i) == "number")
-    assert(type(x) == "number")
-    assert(type(y) == "number")
-    local seq = data.sequences[i]
-    dbg('seq is type(' .. type(seq) .. ')')
-    seq.buttonX, seq.buttonY = x, y
-end
-
-local function checkPos(x, y)
-    local count = 0
-    assert(type(x) == "number")
-    assert(type(y) == "number")
-    dbg('(' .. x .. ', ' .. y .. ')')
-    for i, s in pairs(data.sequences) do
-        assert(type(s.buttonX) == "number")
-        assert(type(s.buttonY) == "number")
-        if s.buttonX == x then if s.buttonY == y then 
-            dbg(s.name .. ' matches, c = ' .. count)
-            count = count + 1 
-        end end
-    end
-    if count > 1 then 
-        dbg('count was greater than 1; ' .. count)
-        return true 
-    else 
-        dbg('count was 1 or less; ' .. count)
-        return false 
-    end
-end
-
-local function findOverlaps()
-    local overlapping = {}
-    for index, seq in pairs(data.sequences) do
-        assert(type(seq.buttonX) == "number")
-        assert(type(seq.buttonY) == "number")
-        dbg("checking " .. seq.name)
-        if checkPos(seq.buttonX, seq.buttonY) then 
-            dbg(index .. ': ' .. seq.name .. " pos overlapping")
-            table.insert(overlapping, index, seq)
-        end
-    end
-    return overlapping
-end
-
-local function cleanData()
-    local overlaps = findOverlaps()
-    local c = 0
-    for i, v in pairs(overlaps) do
-        assert(type(i) == "number")
-        assert(type(v) == "table")
-        c = c + 1
-        local y, x
-        y = 300 + (c * 40)
-        x = 300 
-        local name = data.sequences[i].name
-        dbg('adjusting index ' .. i .. ': ' .. name .. ' to ' .. x .. ', ' .. y)
-        adjustButton(i, x, y)
-    end
-    dbg(c .. " overlaps were found and moved") 
-end
-
-cleanData()
-saveData()
-
 local jointButtonWidth = data.settings.guiSize.value
 local jointButtonHeight = data.settings.guiSize.value
 
@@ -391,18 +335,14 @@ local function getTimeLimit()
   if multiPlayer() then return get_world_state().turn_timelimit else return 1000000 end
 end
 
-function addButton(x, y, w, h, text, func, num_moves)
+function addButton(x, y, w, h, text, func)
   local btn = {}
   btn.x = x
   btn.y = y
   btn.w = w
   btn.h = h
-  if num_moves then
-    btn.text = text .. " [" .. num_moves .. "]"
-  else
-    btn.text = text 
-  end
   btn.func = func
+  btn.text = text
   btn.visible = true
   btn.timestamp = os.clock()
   table.insert(miscButtons, btn)
@@ -411,6 +351,15 @@ end
 function mouseInButton(btn)
   return gui.mx>btn.x and gui.my>btn.y and gui.mx<btn.x+btn.w and gui.my<btn.y+btn.h
 end
+
+local function recreateMoveButtons()
+    for index, seq in pairs(data.sequences) do
+      local btn = addButton(seq.buttonX, seq.buttonY, moveButtonWidth, 28, seq.name .. " [" .. tablelength(seq.moves) .. "]", function() moveButton(index) end)
+      btn.isMoveButton = true
+      btn.index = index
+    end
+end
+
 
 function addLabel(text, x, y, font, color)
   local lbl = {}
@@ -1031,6 +980,96 @@ local function hookEndGame()
   activeSequence = nil
 end
 
+local function adjustButton(i, x, y)
+    assert(type(i) == "number")
+    assert(type(x) == "number")
+    assert(type(y) == "number")
+    local seq = data.sequences[i]
+    seq.buttonX, seq.buttonY = x, y
+end
+
+local function checkPos(x, y)
+    local count = 0
+    assert(type(x) == "number")
+    assert(type(y) == "number")
+    for i, s in pairs(data.sequences) do
+        assert(type(s.buttonX) == "number")
+        assert(type(s.buttonY) == "number")
+        if s.buttonX == x then if s.buttonY == y then 
+            count = count + 1 
+        end end
+    end
+    if count > 1 then 
+        return true 
+    else 
+        return false 
+    end
+end
+
+local function findOverlaps()
+    local overlapping = {}
+    for index, seq in pairs(data.sequences) do
+        assert(type(seq.buttonX) == "number")
+        assert(type(seq.buttonY) == "number")
+        if checkPos(seq.buttonX, seq.buttonY) then 
+            dbg(index .. ': ' .. seq.name .. " pos overlapping")
+            table.insert(overlapping, index, seq)
+        end
+    end
+    return overlapping
+end
+
+overlaps = findOverlaps()
+if overlaps then
+    echo("overlapping moves were found, run the sort mechanism")
+end
+
+local function createPos(n, total)
+    local col = n % 3
+    local row = ((n - col)/3) + 4
+    local x = col * (moveButtonWidth + 1)
+    local y = row * (moveButtonHeight + 1)
+    return x, y
+end
+
+local function sortByMoves()
+    local totalCount = 0
+    local numericSort = {}
+    for i = 1, 9 do numericSort[i] = {} end
+    for i, seq in pairs(data.sequences) do
+        totalCount = totalCount + 1
+        dbg(seq.name)
+        numericSort[tablelength(seq.moves)][i] = seq
+    end
+    local current = 0
+    for i, seq in pairs(numericSort) do
+        dbg("number of moves: " .. i)
+        for n, move in pairs(numericSort[i]) do
+            current = current + 1
+            local x, y = createPos(current)
+            adjustButton(n, x, y)
+            dbg(n .. ": " .. move.name .. " (" .. x .. ", " .. y .. ")")
+        end
+    end
+end
+
+local function cleanData()
+    local overlaps = findOverlaps()
+    local c = 0
+    for i, v in pairs(overlaps) do
+        assert(type(i) == "number")
+        assert(type(v) == "table")
+        c = c + 1
+        local y, x
+        y = 300 + (c * 40)
+        x = 300 
+        local name = data.sequences[i].name
+        dbg('adjusting index ' .. i .. ': ' .. name .. ' to ' .. x .. ', ' .. y)
+        adjustButton(i, x, y)
+    end
+    dbg(c .. " overlaps were found and moved") 
+end
+
 function moveButton(index)
   -- A move button was clicked
   if index == -1 then
@@ -1061,8 +1100,9 @@ local function saveSequence(playerIndex, numMoves)
   table.insert(data.sequences, seq)
   saveData()
   -- Make a new button for this sequence:
+  dbg(test)
   local index = #data.sequences
-  local btn = addButton(gui.mx-40, gui.my-15, moveButtonWidth, 28, seq.name, function() moveButton(index) end)
+  local btn = addButton(gui.mx-40, gui.my-15, moveButtonWidth, 28, seq.name .. " [" .. tablelength(seq.moves) .. "]", function() moveButton(index) end)
   btn.isMoveButton = true
   btn.index = index
   btn.isMoving = true
@@ -1120,7 +1160,7 @@ local function hookKeyUp(k)
     if code == "holdmod" then holdRelaxMod = false end
     return 1
   end
-  if k==string.byte("`") then 
+  if k==string.byte("b") then 
     -- Show/hide move buttons:
     showMoveButtons(not moveButtonsVisible) 
     return 1
@@ -1273,20 +1313,8 @@ function notifyEvent(event)
   add_hook(event, "bpNotify"..event, function() dbg("Event "..event.." fired.") end)
 end
 
-function tablelength(T)
-  local count = 0
-  for k,v in pairs(T) do 
-      count = count + 1 
-  end
-  return count
-end
-
 -- Recreate move buttons:
-for index, seq in pairs(data.sequences) do
-  local btn = addButton(seq.buttonX, seq.buttonY, moveButtonWidth, 28, seq.name, function() moveButton(index) end, tablelength(seq.moves))
-  btn.isMoveButton = true
-  btn.index = index
-end
+recreateMoveButtons()
 local lx, ly = data.lastOpenX, data.lastOpenY
 if lx==nil then lx = 200 end
 if ly==nil then ly = 200 end
@@ -1299,6 +1327,12 @@ if ly==nil then ly = 232 end
 btnLastOppOpen = addButton(lx, ly, moveButtonWidth, 28, "Last Opp. Open", function() moveButton(-2) end)
 btnLastOppOpen.isMoveButton = true
 btnLastOppOpen.index = -2
+-- Add button to sort moves
+lx, ly = data.sortMovesX, data.sortMovesY
+if lx==nil then lx = 100 end
+if ly==nil then ly = 0 end
+btnSortMoves = addButton(lx, ly, moveButtonWidth, 28, "Sort moves", function() sortByMoves() saveData() end)
+btnSortMoves.isMoveButton = false
 showMoveButtons(true)
 
 -- Register callbacks:
@@ -1370,35 +1404,10 @@ secondWords = {animals, weapons, bodyparts, transverbs, moves, objects}
 
 --[[
   TODO LIST
-    - Color the center for contract, edges for extend, left for left, top for raise, etc.
-    ? green color for active hold is not working
-    - save buttons for previous match
-    - queue review
-    x mirroring
-    x prevent joint manipulation after enter freeze
-    x click-drag across joints to extend/contract a whole limb
-    - disable time limit for free play
-    - Plan your opener while waiting for your turn
-
-  SINCE 0.1
-    x indicate fractures and dismembers
-    x hovering over joint button should highlight the joint on the tori
-    x spacebar protection (disable for N seconds after enter_freeze)
-    x commit a "good enough" move, then start playing around with joints. if time runs out, last committed move is activated.
-  SINCE 0.2
-    x keyboard control with minisnake layout
-    
-CHANGELOG
-  0.31 - fixed canControl bug with keyboard controls
-  0.32 - removed timer from single player mode
-  0.33 - fixed playerName bug
-  0.4  - framework for user-accessible settings through /ta set
-       - ability to change frequency of (or disable) kung-fu names
-       - nicer echo() and moved debugging echoes to dbg()
-       - one-time help text for reposition button
-       - hover and click feedback for buttons
-       - overhaul move saving GUI
-  0.5  - "Previous opener" button
+    - save buttons for previous match / autosave to file
+	- better naming
+	- mode based categories?
+	- multiple move lists?
 --]]
 
 dbg("Debugging enabled.")
