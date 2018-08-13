@@ -1120,7 +1120,7 @@ local function hookKeyUp(k)
     if code == "holdmod" then holdRelaxMod = false end
     return 1
   end
-  if k==string.byte("b") then 
+  if k==string.byte("`") then 
     -- Show/hide move buttons:
     showMoveButtons(not moveButtonsVisible) 
     return 1
