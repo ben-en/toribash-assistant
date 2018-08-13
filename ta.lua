@@ -668,6 +668,7 @@ local function hookMouseUp(btn, x, y)
           mb.isMoving=false
           dbg("ismoving=false")
           if mb.isMoveButton then
+			-- Try to delete the button
             if mouseInButton(btnDelete) then
               if mb.index < 0 then
                 -- Can't delete the last opener buttons!
@@ -791,9 +792,6 @@ local function hookEnterFreeze()
         activeSequence = nil
       end
     end
-    --if data.settings.moveNames.value > 0 then
-      --if match.round % data.settings.moveNames.value == 1 then run_cmd("emote "..moveName().."\n") end
-    --end
   end
   match.round = match.round + 1
   --dbg("Starting round "..match.round)

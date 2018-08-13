@@ -9,7 +9,9 @@ Text copied directly from the forum, formatting did not follow. Some notes befor
 
 - I found the emoting annoying, and disabled it with prejudice
 - Buttons show by default
-- Currently using 'b' key for show/hiding buttons
+- Currently using '`' key for show/hiding buttons
+- Added length of steps in a move to the end of the move name: Flying Tiger [3]
+- Added button to reorganize your stuff (WARNING it's really poorly organized, only use to bring stuff onto the screen or fix overlapping buttons. easier to modify the tadata file directly tbh)
 
 
 ```
@@ -31,18 +33,6 @@ Totally revamped move memory system
 You can now easily and conveniently save, rename, delete, rearrange, and activate saved move sequences.
 Click here to see how it works
 Dedicated onscreen buttons to load your own last opener and the opener of your most recent opponent.
-
-Silly Features
-Every five moves, your character emotes a random kung-fu-sounding move name, for example:
-Drunken bandit foot
-Turtle breath rebuke
-Monkey turns away the sword
-Seven scrolls style
-Harmonious blade of the leopard
-Pig knuckle cut
-Magnificent mantis technique
-Over 9,000 philosopher stance
-You can now set the frequency of these emotes. Typing /ta set movenames N will make it happen every N moves. Setting this to zero will disable them completely.
 
 Upcoming Features
 At this point it does everything I've planned, and I consider it feature-complete.
